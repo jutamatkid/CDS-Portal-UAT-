@@ -1,0 +1,176 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Claim CDS Test Case</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+<style>
+/* Layout: sticky summary bar over a single column of subsection tables; rows become stacked cards on phones */
+:root{
+  --bg:#f5f6f8; --surface:#fff; --fg:#1b2430; --muted:#5d6b7c; --line:#dde2e9;
+  --accent:#0b5cad; --pass:#17794a; --pass-bg:#e1f3e9; --fail:#b3261e; --fail-bg:#fbe5e3;
+  --na:#7a5b00; --na-bg:#fbf0cf; --todo:#5d6b7c; --todo-bg:#e8ebf0;
+  --font:'Noto Sans Thai',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12171e; --surface:#1a212b; --fg:#e6ebf1; --muted:#93a1b3; --line:#2b3542;
+  --accent:#6db2ff; --pass:#5fd394; --pass-bg:#16362a; --fail:#ff8a80; --fail-bg:#45201e;
+  --na:#f0cd62; --na-bg:#3d3414; --todo:#93a1b3; --todo-bg:#252e3a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171e; --surface:#1a212b; --fg:#e6ebf1; --muted:#93a1b3; --line:#2b3542;
+  --accent:#6db2ff; --pass:#5fd394; --pass-bg:#16362a; --fail:#ff8a80; --fail-bg:#45201e;
+  --na:#f0cd62; --na-bg:#3d3414; --todo:#93a1b3; --todo-bg:#252e3a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.55;
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:24px 64px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header h1{font-size:1.6rem;line-height:1.25;margin:0;text-wrap:balance}
+header .eyebrow{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+header .ref{color:var(--muted);margin:4px 0 0;font-size:.85rem}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted)}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0;width:100%}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.tile{display:flex;flex-direction:column;border:0;background:var(--todo-bg);color:var(--fg);border-radius:8px;padding:6px 10px;text-align:left;cursor:pointer;font:inherit}
+.tile b{font-size:1.4rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.tile span{font-size:.75rem;color:var(--muted)}
+.tile[aria-pressed="true"]{outline:2px solid var(--accent)}
+.tile.pass{background:var(--pass-bg)}.tile.fail{background:var(--fail-bg)}.tile.na{background:var(--na-bg)}
+.prog{height:8px;border-radius:4px;background:var(--todo-bg);display:flex;overflow:hidden}
+.prog i{display:block;height:100%}
+.prog .p{background:var(--pass)}.prog .f{background:var(--fail)}.prog .n{background:var(--na)}
+.note{font-size:.8rem;color:var(--muted);margin:0}
+section.grp>h2{font-size:1.15rem;margin:8px 0 10px}
+.sub{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.sub>h3{margin:0;padding:10px 14px;font-size:.95rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sub>h3 small{font-weight:400;color:var(--muted)}
+.row{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,2fr) 140px minmax(0,1.2fr);gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:start}
+.row:last-child{border-bottom:0}
+.row.head{font-size:.75rem;color:var(--muted);letter-spacing:.04em;padding-block:8px;background:var(--bg)}
+.id{font-family:var(--mono);font-size:.85rem;color:var(--accent)}
+.x{color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.t{font-weight:500;overflow-wrap:anywhere}
+select.st{font-weight:500}
+select.st[data-v="Pass"]{background:var(--pass-bg);color:var(--pass);border-color:transparent}
+select.st[data-v="Fail"]{background:var(--fail-bg);color:var(--fail);border-color:transparent}
+select.st[data-v="N/A"]{background:var(--na-bg);color:var(--na);border-color:transparent}
+.sign{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+@media (max-width:760px){
+  .tiles{grid-template-columns:repeat(3,1fr)}
+  .row.head{display:none}
+  .row{grid-template-columns:56px 1fr;gap:6px 10px}
+  .row .x,.row .stc,.row .nt{grid-column:1 / -1}
+}
+body{margin:0}
+</style></head><body>
+<div class="wrap">
+<header>
+  <p class="eyebrow">Test Case</p>
+  <h1>Rider Insure: Claim CDS Portal</h1>
+  <p class="ref">อ้างอิง: Proposal · สร้างเมื่อ 12 ตุลาคม 2569 15:30 น.</p>
+</header>
+<div class="meta">
+  <label class="f">วันที่ทดสอบ<input id="m-testDate" type="date" data-m="testDate"></label>
+  <label class="f">ผู้ทดสอบ<input id="m-tester" type="text" data-m="tester"></label>
+</div>
+<div class="bar">
+  <div class="tiles" id="tiles"></div>
+  <div class="prog" id="prog" aria-hidden="true"></div>
+  <p class="note" id="status"></p>
+  <button id="csv" type="button" style="align-self:flex-start;font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg);cursor:pointer">ดาวน์โหลดผลเป็น CSV</button>
+</div>
+<main id="main"></main>
+<div class="sign">
+  <label class="f">ผู้ส่งมอบงาน<input id="m-deliverer" type="text" data-m="deliverer"></label>
+  <label class="f">ผู้ตรวจรับงาน<input id="m-reviewer" type="text" data-m="reviewer"></label>
+  <label class="f">วันที่ตรวจรับ<input id="m-reviewDate" type="date" data-m="reviewDate"></label>
+</div>
+</div>
+<script>
+const GROUPS=[{"title": "A. CDS Portal Login", "subs": [{"title": "A1. Login Flow", "ref": "Proposal หน้า 1", "cases": [{"id": "A-01", "t": "เข้าสู่ระบบด้วย User  ที่มีอยู่ในระบบ", "x": "เปิดหน้าเว็บไวต์ > Login ด้วยชื่อผู้ใช้ , รหัสผ่าน ได้"}, {"id": "A-02", "t": "เปิดหน้ายืนยันตัวตน", "x": "กดปุ่ม เข้าสู่ระบบ > แสดง: อีเมลที่ผู้ใช้กรอกมาข้างต้น, ปุ่มขอรับรหัส OTP, ปุ่มกลับไปหน้าเข้าสู่ระบบ"}, {"id": "A-03", "t": "ปุ่มกลับไปหน้าเข้าสู่ระบบ", "x": "กดปุ่ม กลับไปหน้าเข้าสู่ระบบ แสดง: หน้า Login หน้าแรก"}, {"id": "A-04", "t": "ปุ่มขอรับรหัส OTP", "x": "กดแล้วเข้าสู่หน้า กรอกรหัส OTP"}, {"id": "A-05", "t": "OTP", "x": "กดขอ OTP แล้วระบบส่ง OTP เข้าอีเมลของ User ที่กรอกเข้ามาข้างต้น"}, {"id": "A-06", "t": "กรอก OTP", "x": "กรอก OTP > แสดงหน้าแรก ประกอบด้วยเมนู หน้าแรก, การเคลม, FAX เคลม"}, {"id": "A-07", "t": "ปุ่มขอรหัสใหม่", "x": "กดแล้ว OTP ส่งเข้าเมลผู้ใช้งาน"}, {"id": "A-08", "t": "กดขอรหัสใหม่ แต่กรอกOTP เดิม", "x": "กรอก OTP เดิมระบบแสดงข้อความแจ้งเตือน \"รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง\""}, {"id": "A-09", "t": "OTP หมดอายุ", "x": "กรอก OTP ที่หมดอายุระบบแสดงข้อความแจ้งเตือน \"รหัส OTP เดิมหมดอายุ กรุณาลองใหม่อีกครั้ง\""}, {"id": "A-10", "t": "OTP ไม่ถูกต้อง", "x": "ระบบแสดงข้อความแจ้งเตือน \"รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง\""}, {"id": "A-11", "t": "เซสชันหมดอายุ", "x": "ระบบแสดงข้อความแจ้งเตือน \"เซสชันการยืนยันตัวตนหมดอายุหรือไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่\" และนำผู้ใช้กลับสู่หน้า Login อีกครั้ง"}, {"id": "A-12", "t": "กด Logout", "x": "กดเลือกชื่อผู้ใช้ > แสดง: ปุ่มLogout > ระบบนำผู้ใช้เข้าสู่หน้าLogin"}]}]}, {"title": "B. CDS Portal (การรับเคลม)", "subs": [{"title": "B1. การเคลม", "ref": null, "cases": [{"id": "B-01", "t": "เปิดหน้าการเคลม", "x": "กดแล้ว แสดง: เมนูครบถ้วน ได้แก่ รายการการเคลม, อัปโหลดเอกสารการเคลม, อัปโหลดหลักฐานการพิจารณา"}, {"id": "B-02", "t": "หน้ารายการการเคลม", "x": "แสดงสถานะการเคลมครบถ้วน ได้แก่ รอรับเรื่อง, รับเรื่องแล้ว, แจ้งขอเอกสารเพิ่มเติม, รอเอกสารเพิ่มเติม, อนุมัติ และปฏิเสธ"}, {"id": "B-03", "t": "สถานะรอรับเรื่อง", "x": "สามารถกดปุ่ม \"รับเรื่องเคลม\" เพื่อรับเรื่องเคลมได้"}, {"id": "B-04", "t": "ปุ่ม Check block", "x": "กดปุ่มCheck block สามารถกดปุ่มยืนยันรับเคลมและดาวน์โหลดเอกสารได้"}, {"id": "B-05", "t": "ปุ่ม Check block", "x": "สามารถเลือกได้หลายรายการ"}, {"id": "B-06", "t": "หมายเลขอ้างอิง", "x": "กดคลิกที่หมายเลขอ้างอิง สามารถคัดลอกหมายเลขอ้างอิงได้"}, {"id": "B-07", "t": "หน้ารายละเอียดการเคลม", "x": "กดที่ชื่อลูกค้า > แสดง: ข้อมูลบัตรประกัน,ข้อมูลการเคลม, เอกสารต่างๆ, ประวัติการเคลม"}, {"id": "B-08", "t": "ประวัติการเคลม", "x": "กดปุ่มประวัติการเคลมทั้งหมด > แสดง: Popup รายละเอียดสถานะการเคลมทั้งหมด"}]}, {"title": "B2. รับเรื่องแล้ว", "ref": null, "cases": [{"id": "B-09", "t": "ปุ่มบันทึกผลพิจราณา", "x": "กดปุ่มบันทึกผลพิจรณา → เปิดหน้า บันทึกผลพิจรณา แสดง: (สถานะ, หมายเลขอ้างอิง, จำนวนที่อนุมัติ, ค่าห้องค่าอาหารและค่าการพยาบาล, ค่ารักษาพยาบาลและค่าบริการทั่วไป, ข้อตกลงคุ้มครองการรักษาโดยการผ่าตัด, ข้อตกลงคุ้มครองการดูแลโดยแพทย์, การรักษาพยาบาลแบบผู้ป่วยนอก, การรักษาพยาบาลเนื่องจากอุบัติเหตุ, ชื่อไฟล์เอกสารผลการพิจารณา, วันที่โอนเงิน, หมายเหตุ)"}, {"id": "B-10", "t": "เปิดหน้าขอเอกสารเพิ่มเติม", "x": "กดที่ชื่อลูกค้า → เปิดหน้า รายละเอียดการเคลม แสดง: ปุ่มขอเอกสารเพิ่มเติม"}, {"id": "B-11", "t": "ปุ่มขอเอกสารเพิ่มเติม", "x": "กดปุ่มขอเอกสารเพิ่มเติม แสดง: (เลขที่อ้างอิง, ชื่อไฟล์เอกสารผลการพิจารณา, รายการที่ต้องการขอเอกสารเพิ่มเติม  → ชื่อไฟล์เอกสารผลการพิจารณา, หมายเหตุ)"}, {"id": "B-12", "t": "ปุ่มเพิ่มรายการขอเอกสารเพิ่มเติม", "x": "กดปุ่มเพิ่มรายการ แสดง: กรอบรายการขอเอกสารเพิ่มเติมรายการที่ 2-3-4 ฯลฯ"}]}, {"title": "B3. แจ้งขอเอกสารเพิ่มเติม (กรณีอัปโหลดสถานะผ่าน Excel)", "ref": null, "cases": [{"id": "B-13", "t": "ปุ่มขอเอกสารเพิ่มเติม", "x": "กดปุ่มขอเอกสารเพิ่มเติม แสดง: (เลขที่อ้างอิง, ชื่อไฟล์เอกสารผลการพิจารณา, รายการที่ต้องการขอเอกสารเพิ่มเติม  → ชื่อไฟล์เอกสารผลการพิจารณา, หมายเหตุ)"}, {"id": "B-14", "t": "ปุ่มเพิ่มรายการขอเอกสารเพิ่มเติม", "x": "กดปุ่มเพิ่มรายการ แสดง: กรอบรายการขอเอกสารเพิ่มเติมรายการที่ 2-3-4 ฯลฯ"}]}, {"title": "B4. ค้นหาข้อมูลผู้เคลม", "ref": null, "cases": [{"id": "B-15", "t": "ค้นหาชื่อลูกค้า", "x": "กดเลือกการเคลม → รายการการเคลม → ค้นหาชื่อลูกค้าได้ และแสดงรายการที่ค้นหาได้ถูกต้อง"}, {"id": "B-16", "t": "ค้นหากรมธรรม์", "x": "กดเลือกการเคลม → รายการการเคลม →ค้นหาเลขกรมธรรม์ได้ และแสดงรายการที่ค้นหาได้ถูกต้อง"}, {"id": "B-17", "t": "ค้นหาหมายเลขอ้างอิง", "x": "กดเลือกการเคลม → รายการการเคลม →ค้นหาหมายเลขอ้างอิงได้ และแสดงรายการที่ค้นหาได้ถูกต้อง"}]}]}, {"title": "C. อัปโหลดเอกสารการเคลม", "subs": [{"title": "C1. อัปโหลดไฟล์เอกสาร", "ref": null, "cases": [{"id": "C-01", "t": "หน้าอัปโหลดเอกสารการเคลม", "x": "กดเลือกการเคลม → อัปโหลดเอกสารการเคลม → เปิดหน้า อัปโหลดเอกสารการเคลม แสดง: อัปโหลดไฟล์ Excel"}, {"id": "C-02", "t": "หน้าแสดงสถานะเอกสาร", "x": "กดอัปโหลดเอกสารการเคลม → แสดง: รายการเอกสารที่นำเข้า พร้อมระบุสถานะของรายการนั้น"}, {"id": "C-03", "t": "ตรวจสอบรายการก่อนกดยืนยัน", "x": "ดู, เลื่อนเพื่อนตรวจสอบรายการทั้งหมดได้ก่อกดยืนยัน"}, {"id": "C-04", "t": "ปุ่ม เปลี่ยนไฟล์", "x": "กดแล้ว แสดง: หน้าต่างเลือกไฟล์ใหม่ และเมื่อเลือกแล้วข้อมูลทั้งหมดอัปเดตตามไฟล์ใหม่"}, {"id": "C-05", "t": "ปุ่ม ยกเลิก", "x": "กดแล้ว กลับสู่หน้าอัปโหลดเริ่มต้น"}, {"id": "C-06", "t": "ปุ่ม ยืนยันการอัปโหลด", "x": "กดแล้ว แสดง: Popup ข้อความ \"ยืนยันการอัปโหลดเอกสาร Excel\""}]}, {"title": "C2. อัปโหลดหลักฐานการพิจารณา", "ref": null, "cases": [{"id": "C-07", "t": "หน้าอัปโหลดหลักฐานการพิจารณา", "x": "กดเลือกการเคลม → หน้าอัปโหลดหลักฐานการพิจารณา → เปิดหน้า หน้าอัปโหลดหลักฐานการพิจารณา แสดง: เงื่อนไขการอัปโหลดไฟล์ PDF , พื้นที่ลากวางไฟล์ และรายการ \"เอกสารที่รออัปโหลด\""}, {"id": "C-08", "t": "ค้นหาเลขเคลม", "x": "ค้นหาเลขที่เคลมได้ และแสดงข้อความไม่พบข้อมูลเมื่อค้นหาเลขที่ไม่มีในรายการ"}, {"id": "C-09", "t": "หน้าแสดงสถานะเอกสาร", "x": "กดอัปโหลดหลักฐานการพิจารณา → แสดง: \"เอกสารที่พร้อมนำเข้า\" พร้อมชื่อ ขนาด และป้าย \"อัปโหลดสำเร็จ\" และรายการที่ตรงกันถูกไฮไลต์สีเขียว"}, {"id": "C-10", "t": "อัปโหลดไฟล์ที่ชื่อไม่ตรงกับเลขที่เคลมใดในรายการ", "x": "ระบบแสดงข้อความแจ้งเตือนว่า \"ไม่พบเลขที่เคลมที่ตรงกัน และไม่ถูกนับเป็นเอกสารที่พร้อมนำเข้า\""}, {"id": "C-11", "t": "ปุ่ม ถังขยะ", "x": "กดแล้ว → ไฟล์ถูกลบออก จำนวนอัปเดต และรายการที่รออัปโหลดกลับเป็นสถานะไม่ไฮไลต์"}, {"id": "C-12", "t": "ปุ่ม นำเข้าเอกสาร", "x": "กดแล้ว → ระบบนำเข้าไฟล์ที่พร้อมสำเร็จ แสดงข้อความแจ้งผล และรายการที่รออัปโหลดอัปเดตตามจริง"}]}]}];
+const OPTS=["ยังไม่ทดสอบ","Pass","Fail","N/A"];
+const state={}, meta={}; let filter="all", dbh=null, mode="local";
+const $=s=>document.querySelector(s);
+const ALL=GROUPS.flatMap(g=>g.subs.flatMap(s=>s.cases));
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function get(id){return state[id]||{status:"ยังไม่ทดสอบ",note:""}}
+function counts(){const c={all:ALL.length,"Pass":0,"Fail":0,"N/A":0,"ยังไม่ทดสอบ":0};ALL.forEach(x=>c[get(x.id).status]++);return c}
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function build(){
+  const m=$("#main");m.innerHTML="";
+  GROUPS.forEach(g=>{
+    const sec=document.createElement("section");sec.className="grp";
+    sec.innerHTML=`<h2>${esc(g.title)}</h2>`;
+    g.subs.forEach(s=>{
+      const box=document.createElement("div");box.className="sub";box.dataset.sub="1";
+      box.innerHTML=`<h3><span>${esc(s.title)}</span>${s.ref?`<small>${esc(s.ref)}</small>`:""}</h3>
+      <div class="row head"><span>ID</span><span>รายการทดสอบ</span><span>ผลที่คาดหวัง</span><span>ผล</span><span>หมายเหตุ</span></div>`;
+      s.cases.forEach(c=>{
+        const r=document.createElement("div");r.className="row";r.dataset.id=c.id;
+        r.innerHTML=`<span class="id">${c.id}</span><span class="t">${esc(c.t)}</span><span class="x">${esc(c.x)}</span>
+        <span class="stc"><select class="st" id="s-${c.id}" aria-label="ผล ${c.id}">${OPTS.map(o=>`<option>${o}</option>`).join("")}</select></span>
+        <span class="nt"><input id="n-${c.id}" type="text" placeholder="หมายเหตุ" aria-label="หมายเหตุ ${c.id}"></span>`;
+        box.appendChild(r);
+      });
+      sec.appendChild(box);
+    });
+    m.appendChild(sec);
+  });
+  m.addEventListener("change",e=>{
+    const r=e.target.closest(".row");if(!r)return;
+    if(e.target.matches("select.st")||e.target.matches(".nt input"))save(r.dataset.id,r);
+  });
+}
+function paint(){
+  ALL.forEach(c=>{
+    const v=get(c.id),s=$("#s-"+c.id),n=$("#n-"+c.id);
+    if(s.value!==v.status){s.value=v.status}s.dataset.v=v.status;
+    if(document.activeElement!==n&&n.value!==v.note)n.value=v.note||"";
+  });
+  const k=counts();
+  const T=[["all","ทั้งหมด",""],["Pass","Pass","pass"],["Fail","Fail","fail"],["N/A","N/A","na"],["ยังไม่ทดสอบ","ยังไม่ทดสอบ",""]];
+  $("#tiles").innerHTML=T.map(([key,l,cl])=>`<button class="tile ${cl}" data-f="${key}" aria-pressed="${filter===key}"><b>${k[key]}</b><span>${l}</span></button>`).join("");
+  const p=x=>(x/k.all*100)+"%";
+  $("#prog").innerHTML=`<i class="p" style="width:${p(k.Pass)}"></i><i class="f" style="width:${p(k.Fail)}"></i><i class="n" style="width:${p(k["N/A"])}"></i>`;
+  document.querySelectorAll(".row[data-id]").forEach(r=>{r.hidden=!(filter==="all"||get(r.dataset.id).status===filter)});
+  document.querySelectorAll(".sub").forEach(b=>{b.hidden=![...b.querySelectorAll(".row[data-id]")].some(r=>!r.hidden)});
+  document.querySelectorAll("section.grp").forEach(g=>{g.hidden=![...g.querySelectorAll(".sub")].some(b=>!b.hidden)});
+  document.querySelectorAll("[data-m]").forEach(i=>{if(document.activeElement!==i)i.value=meta[i.dataset.m]||""});
+}
+async function save(id,r){
+  const v={status:r.querySelector("select").value,note:r.querySelector(".nt input").value};
+  state[id]=v;paint();
+  if(dbh){try{await dbh.collection("results").doc(id).set(v)}catch(e){flash("บันทึกไม่สำเร็จ: "+(e.message||e.code))}}
+  else ls("cds-results",state);
+}
+async function saveMeta(k,val){
+  meta[k]=val;
+  if(dbh){try{await dbh.doc("meta/info").set(meta)}catch(e){flash("บันทึกไม่สำเร็จ")}}else ls("cds-meta",meta);
+}
+function flash(t){$("#status").textContent=t}
+document.addEventListener("click",e=>{const b=e.target.closest(".tile");if(b){filter=(filter===b.dataset.f&&filter!=="all")?"all":b.dataset.f;paint()}});
+document.addEventListener("change",e=>{if(e.target.dataset.m)saveMeta(e.target.dataset.m,e.target.value)});
+build();
+Object.assign(state,ls("cds-results")||{});Object.assign(meta,ls("cds-meta")||{});
+flash("กำลังเชื่อมต่อการบันทึกร่วม…");paint();
+(async()=>{
+  let db=null;try{db=await claude.use("db")}catch(e){}
+  if(!db){flash("บันทึกเฉพาะในเบราว์เซอร์นี้ (ยังไม่ได้ลงชื่อเข้าใช้หรือไม่มีสิทธิ์บันทึกร่วม)");return}
+  dbh=db;mode="shared";
+  flash("ผลการทดสอบบันทึกร่วมกัน ทุกคนที่เปิดลิงก์เห็นตรงกัน");
+  db.collection("results").onSnapshot(s=>{
+    s.docs.forEach(d=>{const x=d.data();if(x)state[d.id]={status:x.status||"ยังไม่ทดสอบ",note:x.note||""}});paint();
+  },e=>flash("อ่านข้อมูลร่วมไม่ได้: "+(e.message||e.code)));
+  db.doc("meta/info").onSnapshot(s=>{const x=s.data();if(x){Object.assign(meta,x);paint()}});
+})();
+</script>
+<script>
+document.getElementById("csv").addEventListener("click",()=>{
+  const q=v=>'"'+String(v||"").replace(/"/g,'""')+'"';
+  const rows=[["ID","รายการทดสอบ","ผลที่คาดหวัง","ผล","หมายเหตุ"]];
+  ALL.forEach(c=>{const v=get(c.id);rows.push([c.id,c.t,c.x,v.status,v.note])});
+  const blob=new Blob(["\ufeff"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="claim-cds-results.csv";a.click();
+});
+</script></body></html>
